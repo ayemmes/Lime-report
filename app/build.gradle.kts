@@ -17,11 +17,24 @@ android {
         versionName = "1.1"
     }
 
+    // One permanent key, so each new APK installs as an update over the previous one.
+    // CI passes its location and password in; local builds fall back to the debug key.
+    val releaseKeystore = System.getenv("LIME_KEYSTORE")?.let { file(it) }?.takeIf { it.exists() }
+    signingConfigs {
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = System.getenv("LIME_KEYSTORE_PASSWORD")
+                keyAlias = "lime"
+                keyPassword = System.getenv("LIME_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Signed with the debug key so the APK installs without extra setup.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
     compileOptions {

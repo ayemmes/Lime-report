@@ -17,6 +17,23 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      # Every release must be signed with the same key, or Android refuses to install it as an update.
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/lime-release.jks"
+            echo "LIME_KEYSTORE=$RUNNER_TEMP/lime-release.jks" >> "$GITHUB_ENV"
+            echo "LIME_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          elif [ -f keystore/lime-release.jks ]; then
+            echo "LIME_KEYSTORE=$PWD/keystore/lime-release.jks" >> "$GITHUB_ENV"
+            echo "LIME_KEYSTORE_PASSWORD=$(cat keystore/password.txt)" >> "$GITHUB_ENV"
+          else
+            echo "::error::No signing key found. Add KEYSTORE_BASE64 and KEYSTORE_PASSWORD secrets."
+            exit 1
+          fi
       - name: Test and build
         run: ./gradlew testDebugUnitTest assembleRelease
       - name: Rename APK
