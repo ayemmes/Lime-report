@@ -76,7 +76,7 @@ fun ShiftEditScreen(
     val context = LocalContext.current
     // Existing shifts keep the rates they were logged with; new shifts use today's rates.
     val r = existing?.let {
-        Rates(it.relocateScooterRate, it.relocateBikeRate, it.deployScooterRate, it.deployBikeRate, it.damagedRate)
+        Rates(it.relocateScooterRate, it.relocateBikeRate, it.deployScooterRate, it.deployBikeRate, it.damagedRate, it.batterySwapRate)
     } ?: rates
 
     var start by rememberSaveable { mutableStateOf(existing?.startMillis ?: defaultStart()) }
@@ -86,13 +86,15 @@ fun ShiftEditScreen(
     val depS = rememberSaveable { mutableStateOf(existing?.deployScooters?.toString() ?: "") }
     val depB = rememberSaveable { mutableStateOf(existing?.deployBikes?.toString() ?: "") }
     val dmg = rememberSaveable { mutableStateOf(existing?.damagedVehicles?.toString() ?: "") }
+    val bat = rememberSaveable { mutableStateOf(existing?.batterySwaps?.toString() ?: "") }
     var note by rememberSaveable { mutableStateOf(existing?.note ?: "") }
     var heard by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
     fun n(s: MutableState<String>) = s.value.toIntOrNull() ?: 0
     val total = n(relocS) * r.relocateScooter + n(relocB) * r.relocateBike +
-        n(depS) * r.deployScooter + n(depB) * r.deployBike + n(dmg) * r.damaged
+        n(depS) * r.deployScooter + n(depB) * r.deployBike + n(dmg) * r.damaged +
+        n(bat) * r.batterySwap
     val timesValid = end > start
 
     val speech = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -106,6 +108,7 @@ fun ShiftEditScreen(
         parsed.deployScooters?.let { depS.value = it.toString() }
         parsed.deployBikes?.let { depB.value = it.toString() }
         parsed.damaged?.let { dmg.value = it.toString() }
+        parsed.batterySwaps?.let { bat.value = it.toString() }
         if (parsed.isEmpty) {
             Toast.makeText(context, "Couldn't find any counts. Try: “relocated 12 scooters, 4 bikes”", Toast.LENGTH_LONG).show()
         }
@@ -146,7 +149,7 @@ fun ShiftEditScreen(
             }
             Text(
                 heard?.let { "Heard: “$it”" }
-                    ?: "e.g. “relocated 12 scooters and 5 bikes, deployed 20 scooters and 3 bikes, 4 damaged”",
+                    ?: "e.g. “relocated 12 scooters and 5 bikes, deployed 20 scooters and 3 bikes, 4 damaged, 15 batteries”",
                 style = MaterialTheme.typography.bodySmall,
             )
 
@@ -158,6 +161,8 @@ fun ShiftEditScreen(
             CountRow("Bikes", r.deployBike, depB)
             SectionTitle("Damaged (city → warehouse)")
             CountRow("Vehicles", r.damaged, dmg)
+            SectionTitle("Battery swaps")
+            CountRow("Batteries", r.batterySwap, bat)
 
             OutlinedTextField(
                 value = note,
@@ -193,6 +198,8 @@ fun ShiftEditScreen(
                             deployScooterRate = r.deployScooter,
                             deployBikeRate = r.deployBike,
                             damagedRate = r.damaged,
+                            batterySwaps = n(bat),
+                            batterySwapRate = r.batterySwap,
                             note = note.trim(),
                         ),
                     )

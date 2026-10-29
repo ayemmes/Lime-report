@@ -2,13 +2,13 @@ package com.limereport.app
 
 /**
  * Turns a spoken summary such as
- * "relocated 12 scooters and 5 bikes, deployed 20 scooters 3 bikes, 4 damaged"
+ * "relocated 12 scooters and 5 bikes, deployed 20 scooters 3 bikes, 4 damaged, 15 batteries"
  * into task counts. Only the task types that were mentioned are returned, so the
  * caller can leave the other fields as they were.
  */
 object VoiceParser {
 
-    enum class Task { RELOCATE, DEPLOY, DAMAGED }
+    enum class Task(val perVehicleType: Boolean) { RELOCATE(true), DEPLOY(true), DAMAGED(false), BATTERY(false) }
     enum class Vehicle { SCOOTER, BIKE }
 
     data class Result(
@@ -17,8 +17,9 @@ object VoiceParser {
         val deployScooters: Int? = null,
         val deployBikes: Int? = null,
         val damaged: Int? = null,
+        val batterySwaps: Int? = null,
     ) {
-        val isEmpty get() = listOf(relocateScooters, relocateBikes, deployScooters, deployBikes, damaged).all { it == null }
+        val isEmpty get() = listOf(relocateScooters, relocateBikes, deployScooters, deployBikes, damaged, batterySwaps).all { it == null }
     }
 
     private val units = mapOf(
@@ -38,6 +39,7 @@ object VoiceParser {
         word.startsWith("deploy") || word.startsWith("load") -> Task.DEPLOY
         word.startsWith("damage") || word.startsWith("broken") || word.startsWith("repair") ||
             word.startsWith("collect") || word.startsWith("fix") -> Task.DAMAGED
+        word.startsWith("batter") || word.startsWith("swap") -> Task.BATTERY
         else -> null
     }
 
@@ -78,7 +80,7 @@ object VoiceParser {
             }
             val (value, used) = number
             i += used
-            // Look a few words ahead for what the number counts: "5 bikes", "4 damaged ones".
+            // Look a few words ahead for what the number counts: "5 bikes", "4 damaged ones", "15 batteries".
             var vehicle: Vehicle? = null
             var numberTask: Task? = null
             var j = i
@@ -88,8 +90,8 @@ object VoiceParser {
                 j++
                 if (vehicle != null) break
             }
-            if (numberTask == Task.DAMAGED) {
-                task = Task.DAMAGED
+            if (numberTask != null && !numberTask.perVehicleType) {
+                task = numberTask
                 i = j
             } else if (vehicle != null) {
                 i = j
@@ -97,7 +99,7 @@ object VoiceParser {
                 task = numberTask
             }
             val t = task ?: continue
-            val key = if (t == Task.DAMAGED) t to null else t to (vehicle ?: continue)
+            val key = if (!t.perVehicleType) t to null else t to (vehicle ?: continue)
             counts[key] = (counts[key] ?: 0) + value
         }
 
@@ -107,6 +109,7 @@ object VoiceParser {
             deployScooters = counts[Task.DEPLOY to Vehicle.SCOOTER],
             deployBikes = counts[Task.DEPLOY to Vehicle.BIKE],
             damaged = counts[Task.DAMAGED to null],
+            batterySwaps = counts[Task.BATTERY to null],
         )
     }
 }

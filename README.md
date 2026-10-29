@@ -9,10 +9,11 @@ A small Android app for logging Lime van shifts and counting earnings per shift 
   - Relocate from a remote spot to a hub: scooter 10, bike 14
   - Deploy from the warehouse to a hub: scooter 8, bike 12
   - Collect a damaged vehicle to the warehouse: 14
+  - Battery swap: 10 per battery
 - **Shift total** is shown live while you type, and on each shift in the list.
 - **Week total**: weeks run Monday 00:00 to Sunday 23:59. A shift counts in the week it *started*, so a Sunday-night shift ending Monday morning belongs to the week that just ended. Use the arrows to see earlier weeks.
 - **Voice input**: tap "Say your counts" and speak in English, for example
-  "relocated 12 scooters and 5 bikes, deployed 20 scooters and 3 bikes, 4 damaged".
+  "relocated 12 scooters and 5 bikes, deployed 20 scooters and 3 bikes, 4 damaged, 15 batteries".
   The fields fill in and you can fix anything before saving.
 - **Edit or delete** any shift by tapping it. Each shift keeps the rates it was saved with, so changing rates later only affects new shifts.
 - **Share** a week's report as text (WhatsApp, email, etc.) with the share button.

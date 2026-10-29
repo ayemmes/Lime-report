@@ -9,6 +9,7 @@ data class Rates(
     val deployScooter: Int = 8,
     val deployBike: Int = 12,
     val damaged: Int = 14,
+    val batterySwap: Int = 10,
 )
 
 class RatesStore(context: Context) {
@@ -22,6 +23,7 @@ class RatesStore(context: Context) {
             deployScooter = prefs.getInt("deployScooter", d.deployScooter),
             deployBike = prefs.getInt("deployBike", d.deployBike),
             damaged = prefs.getInt("damaged", d.damaged),
+            batterySwap = prefs.getInt("batterySwap", d.batterySwap),
         )
     }
 
@@ -32,6 +34,7 @@ class RatesStore(context: Context) {
             .putInt("deployScooter", rates.deployScooter)
             .putInt("deployBike", rates.deployBike)
             .putInt("damaged", rates.damaged)
+            .putInt("batterySwap", rates.batterySwap)
             .apply()
     }
 }

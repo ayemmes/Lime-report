@@ -1,5 +1,6 @@
 package com.limereport.app.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -23,6 +24,8 @@ data class Shift(
     val deployBikeRate: Int,
     val damagedRate: Int,
     val note: String = "",
+    @ColumnInfo(defaultValue = "0") val batterySwaps: Int = 0,
+    @ColumnInfo(defaultValue = "10") val batterySwapRate: Int = 10,
 )
 
 /** Earnings for the shift in shekels, using the rates saved with it. */
@@ -31,4 +34,5 @@ val Shift.total: Int
         relocateBikes * relocateBikeRate +
         deployScooters * deployScooterRate +
         deployBikes * deployBikeRate +
-        damagedVehicles * damagedRate
+        damagedVehicles * damagedRate +
+        batterySwaps * batterySwapRate

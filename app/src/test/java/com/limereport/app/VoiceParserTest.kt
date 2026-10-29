@@ -30,6 +30,13 @@ class VoiceParserTest {
         assertEquals(VoiceParser.Result(relocateScooters = 8, relocateBikes = 2), r)
     }
 
+    @Test fun batterySwaps() {
+        val r = VoiceParser.parse("relocated 12 scooters, 4 damaged, swapped fifteen batteries")
+        assertEquals(VoiceParser.Result(relocateScooters = 12, damaged = 4, batterySwaps = 15), r)
+        assertEquals(VoiceParser.Result(deployBikes = 3, batterySwaps = 20), VoiceParser.parse("deployed 3 bikes, 20 battery swaps"))
+        assertEquals(VoiceParser.Result(batterySwaps = 9), VoiceParser.parse("battery swaps 9"))
+    }
+
     @Test fun nothingRecognised() {
         assertTrue(VoiceParser.parse("hello there").isEmpty)
         assertTrue(VoiceParser.parse("12 scooters").isEmpty)

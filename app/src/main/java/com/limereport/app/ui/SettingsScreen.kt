@@ -37,7 +37,8 @@ fun SettingsScreen(rates: Rates, onSave: (Rates) -> Unit, onBack: () -> Unit) {
     val depS = remember { mutableStateOf(rates.deployScooter.toString()) }
     val depB = remember { mutableStateOf(rates.deployBike.toString()) }
     val dmg = remember { mutableStateOf(rates.damaged.toString()) }
-    val all = listOf(relocS, relocB, depS, depB, dmg)
+    val bat = remember { mutableStateOf(rates.batterySwap.toString()) }
+    val all = listOf(relocS, relocB, depS, depB, dmg, bat)
     val valid = all.all { it.value.toIntOrNull()?.let { v -> v >= 0 } == true }
 
     Scaffold(
@@ -63,6 +64,7 @@ fun SettingsScreen(rates: Rates, onSave: (Rates) -> Unit, onBack: () -> Unit) {
             RateField("Deploy scooter (warehouse → hub)", depS)
             RateField("Deploy bike (warehouse → hub)", depB)
             RateField("Damaged vehicle (→ warehouse)", dmg)
+            RateField("Battery swap (per battery)", bat)
             Button(
                 onClick = {
                     onSave(
@@ -72,6 +74,7 @@ fun SettingsScreen(rates: Rates, onSave: (Rates) -> Unit, onBack: () -> Unit) {
                             deployScooter = depS.value.toInt(),
                             deployBike = depB.value.toInt(),
                             damaged = dmg.value.toInt(),
+                            batterySwap = bat.value.toInt(),
                         ),
                     )
                 },
@@ -86,6 +89,7 @@ fun SettingsScreen(rates: Rates, onSave: (Rates) -> Unit, onBack: () -> Unit) {
                     depS.value = d.deployScooter.toString()
                     depB.value = d.deployBike.toString()
                     dmg.value = d.damaged.toString()
+                    bat.value = d.batterySwap.toString()
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("Reset to defaults") }

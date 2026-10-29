@@ -136,6 +136,7 @@ private class WeekSummary(shifts: List<Shift>) {
     val deployScooters = shifts.sumOf { it.deployScooters }
     val deployBikes = shifts.sumOf { it.deployBikes }
     val damaged = shifts.sumOf { it.damagedVehicles }
+    val batterySwaps = shifts.sumOf { it.batterySwaps }
 }
 
 @Composable
@@ -155,6 +156,7 @@ private fun WeekTotalCard(s: WeekSummary) {
                 SummaryLine("Relocated", "${s.relocateScooters} scooters · ${s.relocateBikes} bikes")
                 SummaryLine("Deployed", "${s.deployScooters} scooters · ${s.deployBikes} bikes")
                 SummaryLine("Damaged collected", "${s.damaged}")
+                SummaryLine("Batteries swapped", "${s.batterySwaps}")
             }
         }
     }
@@ -186,6 +188,7 @@ private fun shiftBreakdown(s: Shift): String = buildList {
     if (s.relocateScooters + s.relocateBikes > 0) add("Reloc ${s.relocateScooters}S/${s.relocateBikes}B")
     if (s.deployScooters + s.deployBikes > 0) add("Deploy ${s.deployScooters}S/${s.deployBikes}B")
     if (s.damagedVehicles > 0) add("Damaged ${s.damagedVehicles}")
+    if (s.batterySwaps > 0) add("Batteries ${s.batterySwaps}")
 }.ifEmpty { listOf("No tasks") }.joinToString(" · ")
 
 private fun weekReport(week: LocalDate, shifts: List<Shift>, s: WeekSummary): String = buildString {
@@ -196,5 +199,6 @@ private fun weekReport(week: LocalDate, shifts: List<Shift>, s: WeekSummary): St
     appendLine("Relocated: ${s.relocateScooters} scooters, ${s.relocateBikes} bikes")
     appendLine("Deployed: ${s.deployScooters} scooters, ${s.deployBikes} bikes")
     appendLine("Damaged collected: ${s.damaged}")
+    appendLine("Batteries swapped: ${s.batterySwaps}")
     append("Total: ${shekels(s.total)}")
 }
